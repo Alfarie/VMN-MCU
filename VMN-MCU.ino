@@ -33,9 +33,9 @@ String ShowBoardInfo()
 #endif
 */
 
-HardwareSerial &mpuCom = Serial;
+HardwareSerial &mpuCom = Serial1;
 HardwareSerial &sensorCom = Serial2;
-HardwareSerial &debugCom = Serial1;
+HardwareSerial &debugCom = Serial;
 
 #include "./modules/Helper/DisplayLog.h"
 
