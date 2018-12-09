@@ -43,38 +43,27 @@ class VmnServer : public Task
 
         if (client)
         {                                  // if you get a client,
-            //mpuCom.println("New Client."); // print a message out the //mpuCom port
+            debugCom.println("New Client connected"); // print a message out the //mpuCom port
             String currentLine = "";       // make a String to hold incoming data from the client
             while (client.connected())
             { // loop while the client's connected
                 if (client.available())
-                {                           // if there's bytes to read from the client,
-                    char c = client.read(); // read a byte, then
-                    // //mpuCom.write(c);                    // print it out the //mpuCom monitor
+                {                           
+                    char c = client.read(); 
                     if (c == '\n')
-                    { // if the byte is a newline character
-
-                        // if the current line is blank, you got two newline characters in a row.
-                        // that's the end of the client HTTP request, so send a response:
+                    { 
                         if (currentLine.length() == 0)
                         {
-                            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-                            // and a content-type so the client knows what's coming, then a blank line:
+                            
                             client.println("HTTP/1.1 200 OK");
-                            client.println("Content-type:text/html");
+                            client.println("Content-type:text/plain");
                             client.println();
-
-                            // the content of the HTTP response follows the header:
-                            client.print("Click <a href=\"/H\">here</a> to turn ON the LED.<br>");
-                            client.print("Click <a href=\"/L\">here</a> to turn OFF the LED.<br>");
-
-                            // The HTTP response ends with another blank line:
+                            client.print("success");
                             client.println();
-                            // break out of the while loop:
                             break;
                         }
                         else
-                        { // if you got a newline, then clear currentLine:
+                        { 
                             currentLine = "";
                         }
                     }
@@ -83,35 +72,21 @@ class VmnServer : public Task
                         currentLine += c; // add it to the end of the currentLine
                     }
 
-                    // Check to see if the client request was "GET /H" or "GET /L":
-                    if (currentLine.endsWith("GET /H"))
-                    {
-                        digitalWrite(LED_BUILTIN, HIGH); // GET /H turns the LED on
-                    }
-                    if (currentLine.endsWith("GET /L"))
-                    {
-                        digitalWrite(LED_BUILTIN, LOW); // GET /L turns the LED off
-                    }
                     // GET /val?st=0&ec=1.2&vol=300
                     if (currentLine.endsWith("HTTP/"))
                     {
-                        //mpuCom.println(currentLine);
                         String queryStr = currentLine;
                         queryStr.replace("GET /vmndata?", "");
                         queryStr.replace(" HTTP/", "");
-                        
                         int size = 3;
                         float data[size];
                         ExtractDataFloat(data, size, queryStr);
-                        //mpuCom.println(String(data[0]) + "," + String(data[1]) + "," + String(data[2]));
                         int st = (int)data[0];
                         Nodes::nodes[st].setValue(data[1],data[2]);
                     }
                 }
             }
-            // close the connection:
             client.stop();
-            //mpuCom.println("Client Disconnected.");
         }
     }
 
