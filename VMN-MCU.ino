@@ -1,5 +1,6 @@
 #include <Task.h>
 TaskManager taskManager;
+TaskManager taskManager0;
 
 #include <Wire.h>
 #include <EEPROM.h>
@@ -94,9 +95,22 @@ void DigitalWrite(int ch, int status)
 #include "./modules/Helper/Puppet.h"
 #include "./modules/Button/ResetWifi.h"
 
+ 
+void coreTask( void * pvParameters ){
+ 
+    String taskMessage = "Task running on core ";
+    taskMessage = taskMessage + xPortGetCoreID();
+
+    while(true){
+        taskManager0.Loop();
+    }
+
+}
+
+
 void setup()
 {
-    taskManager.StartTask(VmnServer::instance());
+    taskManager0.StartTask(VmnServer::instance());
     Wire.begin();
     debugCom.begin(115200);
     mpuCom.begin(115200);
@@ -111,6 +125,15 @@ void setup()
     taskManager.StartTask(ParAcc::instance());
     taskManager.StartTask(Communication::instance());
 
+    xTaskCreatePinnedToCore(
+                    coreTask,   /* Function to implement the task */
+                    "coreTask", /* Name of the task */
+                    10000,      /* Stack size in words */
+                    NULL,       /* Task input parameter */
+                    0,          /* Priority of the task */
+                    NULL,       /* Task handle. */
+                    0);
+
     //button
     // taskManager.StartTask(ResetWifi::instance());
 
@@ -121,5 +144,6 @@ void setup()
 
 void loop()
 {
+    // Serial.println("test");
     taskManager.Loop();
 }

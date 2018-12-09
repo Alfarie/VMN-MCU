@@ -35,58 +35,56 @@ class VmnServer : public Task
     }
 
   private:
+    String cmdStr;
+    char res[100];
+    int size, cmdNumber, cmdSize;
     virtual bool OnStart() { return true; }
     virtual void OnUpdate(uint32_t delta_time)
     {
-
         WiFiClient client = server.available(); // listen for incoming clients
-
         if (client)
-        {                                  // if you get a client,
-            debugCom.println("New Client connected"); // print a message out the //mpuCom port
-            String currentLine = "";       // make a String to hold incoming data from the client
+        { // if you get a client,
+            // debugCom.println("New Client connected"); // print a message out the //mpuCom port
+            String currentLine = ""; // make a String to hold incoming data from the client
             while (client.connected())
             { // loop while the client's connected
                 if (client.available())
-                {                           
-                    char c = client.read(); 
-                    if (c == '\n')
-                    { 
-                        if (currentLine.length() == 0)
-                        {
-                            
-                            client.println("HTTP/1.1 200 OK");
-                            client.println("Content-type:text/plain");
-                            client.println();
-                            client.print("success");
-                            client.println();
-                            break;
-                        }
-                        else
-                        { 
-                            currentLine = "";
-                        }
-                    }
-                    else if (c != '\r')
-                    {                     // if you got anything else but a carriage return character,
-                        currentLine += c; // add it to the end of the currentLine
-                    }
+                {
 
-                    // GET /val?st=0&ec=1.2&vol=300
-                    if (currentLine.endsWith("HTTP/"))
+                    if (client.read() == '{')
                     {
-                        String queryStr = currentLine;
-                        queryStr.replace("GET /vmndata?", "");
-                        queryStr.replace(" HTTP/", "");
-                        int size = 3;
-                        float data[size];
-                        ExtractDataFloat(data, size, queryStr);
-                        int st = (int)data[0];
-                        Nodes::nodes[st].setValue(data[1],data[2]);
+                        int size = 0;
+                        while (true)
+                        {
+                            if (client.available())
+                            {
+                                char ch = client.read();
+                                if (ch == '}')
+                                {
+                                    client.print("success");
+                                    client.stop();
+                                    res[size] = '\0';
+                                    String strRes = res;
+                                    debugCom.println(strRes);
+                                    float data[3];
+                                    ExtractDataFloat(data, 3, strRes);
+                                    int st = (int)data[0];
+                                    Nodes::nodes[st].setValue(data[1], data[2]);
+                                    debugCom.print("Recieved data from station: " + String(st));
+                                    debugCom.println(", ec:" + String(data[1]) + "," + String(data[2]));
+                                    break;
+                                }
+                                else
+                                {
+                                    res[size] = ch;
+                                    size++;
+                                }
+                            }
+                        }
                     }
                 }
             }
-            client.stop();
+            
         }
     }
 
