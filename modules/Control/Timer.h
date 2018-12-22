@@ -18,7 +18,7 @@ public:
   }
 
 private:
-  timer_s timer_list[8];
+  timer_s timer_list[30];
   byte size;
   byte mode;
   byte state = 0;
@@ -59,6 +59,7 @@ private:
       //not yet
       if (state == 0)
       {
+        // Serial.println(size);
         for (int i = 0; i < size; i++)
         {
           if (currentMin == timer_list[i].st)

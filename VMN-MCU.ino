@@ -1,7 +1,6 @@
 #include <Task.h>
 TaskManager taskManager;
 TaskManager taskManager0;
-
 #include <Wire.h>
 #include <EEPROM.h>
 
@@ -17,13 +16,13 @@ TaskManager taskManager0;
 #define pumpPin 3
 #define valvePin 5
 
+bool WIFI_INCLUDED = false;
+
 String ShowBoardInfo()
 {
     String str = "INFOBOARD-VERSION" + String(VERSION) + "\r\n";
     str += "INFOPROJECT-NAME " + String(PROJECT) + "\r\n";
     str += "INFODATE-" + String(UPLOADDATE) + "\r\n";
-
-   
     return str;
 }
 
@@ -34,9 +33,9 @@ String ShowBoardInfo()
 #endif
 */
 
-HardwareSerial &mpuCom = Serial1;
+HardwareSerial &mpuCom = Serial;
 HardwareSerial &sensorCom = Serial2;
-HardwareSerial &debugCom = Serial;
+HardwareSerial &debugCom = Serial1;
 
 #include "./modules/Helper/DisplayLog.h"
 
@@ -90,27 +89,28 @@ void DigitalWrite(int ch, int status)
 
 #include "./modules/Vmn/nodes.h"
 #include "./modules/Communication.h"
+
+#if defined(WIFI_INCLUDED)
 #include "./modules/Wifi/server.h"
+#endif
 
-#include "./modules/Helper/Puppet.h"
-#include "./modules/Button/ResetWifi.h"
-
- 
-void coreTask( void * pvParameters ){
- 
+void coreTask(void *pvParameters)
+{
     String taskMessage = "Task running on core ";
     taskMessage = taskMessage + xPortGetCoreID();
-
-    while(true){
+    while (true)
+    {
         taskManager0.Loop();
     }
-
 }
-
 
 void setup()
 {
+
+#if defined(WIFI_INCLUDED)
     taskManager0.StartTask(VmnServer::instance());
+#endif
+
     Wire.begin();
     debugCom.begin(115200);
     mpuCom.begin(115200);
@@ -118,24 +118,25 @@ void setup()
     debugCom.println("Initializing...");
     debugCom.println(ShowBoardInfo());
     mpuCom.println(ShowBoardInfo());
-     mpuCom.println(sizeof(data_table_s));
+    mpuCom.println(sizeof(data_table_s));
     EEPROM_Manager::InitEEPROM();
     taskManager.StartTask(RTC::instance());
     taskManager.StartTask(Sensor::instance());
     taskManager.StartTask(ParAcc::instance());
     taskManager.StartTask(Communication::instance());
 
+#if defined(WIFI_INCLUDED)
     xTaskCreatePinnedToCore(
-                    coreTask,   /* Function to implement the task */
-                    "coreTask", /* Name of the task */
-                    10000,      /* Stack size in words */
-                    NULL,       /* Task input parameter */
-                    0,          /* Priority of the task */
-                    NULL,       /* Task handle. */
-                    0);
+        coreTask,   /* Function to implement the task */
+        "coreTask", /* Name of the task */
+        10000,      /* Stack size in words */
+        NULL,       /* Task input parameter */
+        0,          /* Priority of the task */
+        NULL,       /* Task handle. */
+        0);
+#endif
 
     //button
-    // taskManager.StartTask(ResetWifi::instance());
 
     ChannelHanler::instance();
     MCU_STATE = "RDY";

@@ -21,7 +21,7 @@ public:
 
 private:
   String cmdStr;
-  char res[100];
+  char res[300];
   int size, cmdNumber, cmdSize;
   virtual bool OnStart()
   {
@@ -106,7 +106,7 @@ private:
   void ExtractDataString(String *data, int &size, String res)
   {
     int i = 0, si = 0, ei, j = 0;
-    while (j < 20)
+    while (j < 50)
     {
       int index = res.indexOf(",");
       String a = res.substring(0, index);
@@ -206,10 +206,6 @@ private:
       {
         mpuCom.println(ChannelHanler::instance()->JsonTimer(start_ch, number));
       }
-      else if (cmd.startsWith("irrigation"))
-      {
-        mpuCom.println(ChannelHanler::instance()->JsonIrrigation(start_ch, number));
-      }
       
       else if(cmd.startsWith("advcond"))
       {
@@ -267,52 +263,33 @@ private:
     }
     
     //{timer,1,1,20-60,90-150,200-260}
+    //{timer,1,1,510-120,540-120,570-120,600-120,630-120,660-120,690-120,720-120,750-120,780-120,810-120,840-120,870-120,900-120,930-120,960-120,990-120,1020-120,1050-120}
     else if (res.startsWith("timer"))
     {
+      
       res.replace("timer,", "");
       res.trim();
       int ch = res.substring(0, 1).toInt();
       int timer_mode = res.substring(2, 3).toInt();
       res = res.substring(4);
-      String timer[15];
-      int size = 0;
-      ExtractDataString(timer, size, res);
-      timer_s timerlist[8];
-      TimerStringToTimer(timer, timerlist, size);
-      memcpy(rom_channel[ch - 1].timer.timer_list, timerlist, 8 * sizeof(timer_s));
-
-      rom_channel[ch - 1].mode = 1;
-      rom_channel[ch - 1].timer.size = size;
-      rom_channel[ch - 1].timer.mode = timer_mode;
-      EEPROM_Manager::Update(ch);
-      ChannelHanler::instance()->Update(ch);
-      mpuCom.println("UPD-TIMER-" + String(ch));
-    }
-    else if (res.startsWith("irrigation"))
-    {
-      res.replace("irrigation,", "");
-      res.trim();
-      float mode[12];
-      ExtractDataFloat(mode, 12, res);
-      int ch = (int)mode[0];
-      rom_channel[ch - 1].mode = 5;
-      rom_channel[ch - 1].irrigation.mode = (int)mode[1];
-      rom_channel[ch - 1].irrigation.soil_upper = mode[2];
-      rom_channel[ch - 1].irrigation.soil_lower = mode[3];
-      rom_channel[ch - 1].irrigation.soil_detecting = mode[4];
-      rom_channel[ch - 1].irrigation.soil_working = mode[5];
-
-      rom_channel[ch - 1].irrigation.par_soil_setpoint = mode[6];
-      rom_channel[ch - 1].irrigation.par_working = mode[7];
-      rom_channel[ch - 1].irrigation.par_detecting = mode[8];
-      rom_channel[ch - 1].irrigation.par_acc = mode[9];
-      rom_channel[ch - 1].irrigation.descent_rate = mode[10];
-      rom_channel[ch - 1].irrigation.limit_time = mode[11];
+      String timer[50];
+      int timer_size = 0;
+     
+      ExtractDataString(timer, timer_size, res);
+      timer_s timerlist[40];
+      TimerStringToTimer(timer, timerlist, timer_size);
       
+      memcpy(rom_channel[ch - 1].timer.timer_list, timerlist, 30 * sizeof(timer_s));
+      // Serial.println(String(timer_size) + " ," + String(timer_mode));
+      rom_channel[ch - 1].mode = 1;
+      rom_channel[ch - 1].timer.size = timer_size;
+      rom_channel[ch - 1].timer.mode = 1;
+
       EEPROM_Manager::Update(ch);
       ChannelHanler::instance()->Update(ch);
-      mpuCom.println("UPD-IRR-" + String(ch));
+      mpuCom.println("UPD-TIMER-" + String(ch) + "-"+ String(timer_size));
     }
+    
     // {Gcontrol,dfirrigation,1,1}
     // {dfirrigation,1,30,40,1.0,15,0.4}
     //{dfirrigation,ch, upper, lower, paracc, working, descent}

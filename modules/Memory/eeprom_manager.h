@@ -9,41 +9,7 @@ struct data_timer_s
 {
     byte size;
     byte mode;
-    timer_s timer_list[8];
-};
-// struct data_setpoint_s
-// {
-//     float setpoint;
-//     float detecting;
-//     float working;
-// };
-// struct data_setbound_s
-// {
-//     float upper;
-//     float lower;
-// };
-// struct data_setboundtiming_s
-// {
-//     float upper;
-//     float lower;
-//     float detecting;
-//     float working;
-// };
-struct data_irr_s
-{
-    float soil_upper;
-    float soil_lower;
-    float soil_detecting;
-    float soil_working;
-
-    float descent_rate;
-    float limit_time;
-
-    float par_soil_setpoint;
-    float par_detecting;
-    float par_working;
-    float par_acc;
-    byte mode;
+    timer_s timer_list[30];
 };
 
 struct data_advcond
@@ -106,7 +72,6 @@ struct data_table_s
     byte sensor;
     data_timer_s timer;
     data_manual_s manual;
-    data_irr_s irrigation;
     data_advcond advcond;
     data_advsbt advsbt;
     data_advsb advsb;
@@ -221,39 +186,28 @@ class EEPROM_Manager
 
         //{timer,3,1,300-480,540-720,780-960,1020-1200,1260-1439}
         timer_s timer_list[8];
-        initData.timer.timer_list[0] = {300, 480};
-        initData.timer.timer_list[1] = {540, 720};
-        initData.timer.timer_list[2] = {780, 960};
-        initData.timer.timer_list[3] = {1020, 1200};
-        initData.timer.timer_list[4] = {1260, 1439};
-        initData.timer.size = 5;
-        initData.timer.mode = 0;
-
-        // initData.setpoint.setpoint = 40.0;
-        // initData.setpoint.detecting = 30;
-        // initData.setpoint.working = 30;
-
-        // initData.setbound.upper = 60;
-        // initData.setbound.lower = 40;
-
-        initData.irrigation.soil_upper = 60;
-        initData.irrigation.soil_lower = 40;
-        initData.irrigation.soil_detecting = 30;
-        initData.irrigation.soil_working = 15;
-
-        initData.irrigation.par_soil_setpoint = 50;
-        initData.irrigation.par_detecting = 30;
-        initData.irrigation.par_working = 15;
-        initData.irrigation.par_acc = 1.5;
-        initData.irrigation.mode = 0;
-
-        initData.irrigation.limit_time = 3;
-        initData.irrigation.descent_rate = 0.2;
-
-        // initData.setboundtiming.upper = 60;
-        // initData.setboundtiming.lower = 40;
-        // initData.setboundtiming.detecting = 30;
-        // initData.setboundtiming.working = 15;
+        initData.timer.timer_list[0] = {480, 120};
+        initData.timer.timer_list[1] = {510, 120};
+        initData.timer.timer_list[2] = {540, 120};
+        initData.timer.timer_list[3] = {570, 120};
+        initData.timer.timer_list[4] = {600, 120};
+        initData.timer.timer_list[5] = {630, 120};
+        initData.timer.timer_list[6] = {660, 120};
+        initData.timer.timer_list[7] = {690, 120};
+        initData.timer.timer_list[8] = {720, 120};
+        initData.timer.timer_list[9] = {750, 120};
+        initData.timer.timer_list[10] = {780, 120};
+        initData.timer.timer_list[11] = {810, 120};
+        initData.timer.timer_list[12] = {840, 120};
+        initData.timer.timer_list[13] = {870, 120};
+        initData.timer.timer_list[14] = {900, 120};
+        initData.timer.timer_list[15] = {930, 120};
+        initData.timer.timer_list[16] = {960, 120};
+        initData.timer.timer_list[17] = {990, 120};
+        initData.timer.timer_list[18] = {1020, 120};
+        initData.timer.timer_list[19] = {1050, 120};
+        initData.timer.size = 20;
+        initData.timer.mode = 1;
 
         initData.advcond.timer_list[0] = {480, 1080};
         initData.advcond.timer_size = 1;
@@ -310,8 +264,6 @@ class EEPROM_Manager
         {
             EEPROM.get(channel_list[i], rom_channel[i]);
         }
-        // EEPROM.get(water_process_byte, waterProcess);
-        // EEPROM.get(calibration_byte, calibrationData);
     }
 
     static void Commit()
