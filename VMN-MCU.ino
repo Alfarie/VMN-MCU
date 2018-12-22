@@ -16,7 +16,7 @@ TaskManager taskManager0;
 #define pumpPin 3
 #define valvePin 5
 
-bool WIFI_INCLUDED = false;
+bool WIFI_INCLUDED = true;
 
 String ShowBoardInfo()
 {
@@ -33,9 +33,9 @@ String ShowBoardInfo()
 #endif
 */
 
-HardwareSerial &mpuCom = Serial;
+HardwareSerial &mpuCom = Serial1;
 HardwareSerial &sensorCom = Serial2;
-HardwareSerial &debugCom = Serial1;
+HardwareSerial &debugCom = Serial;
 
 #include "./modules/Helper/DisplayLog.h"
 
@@ -90,7 +90,7 @@ void DigitalWrite(int ch, int status)
 #include "./modules/Vmn/nodes.h"
 #include "./modules/Communication.h"
 
-#if defined(WIFI_INCLUDED)
+#if !defined(WIFI_INCLUDED)
 #include "./modules/Wifi/server.h"
 #endif
 
@@ -107,7 +107,7 @@ void coreTask(void *pvParameters)
 void setup()
 {
 
-#if defined(WIFI_INCLUDED)
+#if !defined(WIFI_INCLUDED)
     taskManager0.StartTask(VmnServer::instance());
 #endif
 
@@ -125,7 +125,7 @@ void setup()
     taskManager.StartTask(ParAcc::instance());
     taskManager.StartTask(Communication::instance());
 
-#if defined(WIFI_INCLUDED)
+#if !defined(WIFI_INCLUDED)
     xTaskCreatePinnedToCore(
         coreTask,   /* Function to implement the task */
         "coreTask", /* Name of the task */
