@@ -18,21 +18,6 @@ TaskManager taskManager0;
 
 bool WIFI_INCLUDED = true;
 
-String ShowBoardInfo()
-{
-    String str = "INFOBOARD-VERSION" + String(VERSION) + "\r\n";
-    str += "INFOPROJECT-NAME " + String(PROJECT) + "\r\n";
-    str += "INFODATE-" + String(UPLOADDATE) + "\r\n";
-    return str;
-}
-
-//test
-/*#if !defined(ARDUINO_ARCH_AVR)
-    HardwareSerial Serial1(1);
-    HardwareSerial Serial2(2);          
-#endif
-*/
-
 HardwareSerial &mpuCom = Serial1;
 HardwareSerial &sensorCom = Serial2;
 HardwareSerial &debugCom = Serial;
@@ -147,4 +132,12 @@ void loop()
 {
     // Serial.println("test");
     taskManager.Loop();
+}
+
+String ShowBoardInfo()
+{
+    String str = "INFOBOARD-VERSION" + String(VERSION) + "\r\n";
+    str += "INFOPROJECT-NAME " + String(PROJECT) + "\r\n";
+    str += "INFODATE-" + String(UPLOADDATE) + "\r\n";
+    return str;
 }
