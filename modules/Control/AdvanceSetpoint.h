@@ -46,7 +46,7 @@ class AdvanceSetpoint : public Control
     virtual void OnUpdate(uint32_t delta_time)
     {
 
-        mpuCom.println("sd: "+ String(sensor_direction) + " d:" + String(direction));
+        //mpuCom.println("sd: "+ String(sensor_direction) + " d:" + String(direction));
         if (CheckTimer() && CheckSensorCondition())
         {
             Setpoint(delta_time);
@@ -143,7 +143,7 @@ class AdvanceSetpoint : public Control
         }
         else
         {
-            mpuCom.println("ADVCOND " + String(channel) + " cr:" + String(currentTime) + " sensor:" + String(sensor) + " " + String(detecting) + " " + String(working) + " " + String(state));
+            // mpuCom.println("ADVCOND " + String(channel) + " cr:" + String(currentTime) + " sensor:" + String(sensor) + " " + String(detecting) + " " + String(working) + " " + String(state));
             
             if (state == 0)
             {
